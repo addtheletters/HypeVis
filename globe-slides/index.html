@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>WebGL Globe</title>
+  <meta charset="utf-8">
+  <style type="text/css">
+    html {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000000 url(/globe/loading.gif) center center no-repeat;
+      color: #ffffff;
+      font-family: sans-serif;
+      font-size: 13px;
+      line-height: 20px;
+      height: 100%;
+    }
+
+    #info {
+
+      font-size: 11px;
+      position: absolute;
+      bottom: 5px;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-radius: 3px;
+      right: 10px;
+      padding: 10px;
+
+    }
+
+    a {
+      color: #aaa;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .bull {
+      padding: 0px 5px;
+      color: #555;
+    }
+
+    #title {
+      position: absolute;
+      top: 20px;
+      width: 320px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.2);
+      font: 20px/20px Georgia;
+      padding: 15px;
+    }
+
+    .year {
+
+      font: 16px Georgia;
+      line-height: 26px;
+      height: 30px;
+      text-align: center;
+      float: left;
+      width: 90px;
+      color: rgba(255, 255, 255, 0.4);
+
+      cursor: pointer;
+      -webkit-transition: all 0.1s ease-out;
+    }
+
+    .year:hover, .year.active {
+      font-size: 23px;
+      color: #fff;
+    }
+
+    #ce span {
+      display: none;
+    }
+
+    #ce {
+      width: 107px;
+      height: 55px;
+      display: block;
+      position: absolute;
+      bottom: 15px;
+      left: 20px;
+      background: url(/globe/ce.png);
+    }
+
+
+  </style>
+</head>
+<body>
+
+<div id="container"></div>
+
+<div id="info">
+  The <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a> is an
+  open platform for visualizing geographic data. <span
+    class="bull">&bull;</span> <a href="https://github.com/dataarts/webgl-globe">Get
+  the code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
+</div>
+
+<div id="title">
+  Landslides! Oh no!
+</div>
+
+<a id="ce" href="http://www.chromeexperiments.com/globe">
+  <span>This is a Chrome Experiment</span>
+</a>
+
+
+<script type="text/javascript" src="/globe/third-party/Detector.js"></script>
+<script type="text/javascript" src="/globe/third-party/three.min.js"></script>
+<script type="text/javascript" src="/globe/globe.js"></script>
+<script type="text/javascript">
+
+  var globe = DAT.Globe(document.getElementById('container'), {
+    colorFn: function(label) {
+      //console.log(label);
+       return new THREE.Color([
+         0xdcf442, 0xffd000, 0xff7700, 0xff0000, 0xc4bca6][label]);
+    }
+  });
+
+  var promoted = {};
+  var sizes = ["small", "medium", "large", "very_large"];
+  var max_casualties = 280;
+
+  var datafilter = function(data){
+    var filtered = [];
+    for(var i = 0; i < data.length; i++){
+      var casualties = countCasualties(data[i]);
+      data[i].casualties = casualties;
+      if(casualties > max_casualties){
+        max_casualties = casualties;
+      }
+    }
+
+    for(var i = 0; i < data.length; i++){
+      filtered.push(data[i].latitude);
+      filtered.push(data[i].longitude);
+      filtered.push(data[i].casualties / max_casualties);
+      filtered.push(parseSize(data[i].landslide_size));
+    }
+    return filtered;
+  };
+
+  var countCasualties = function(datapoint){
+    var ct = 0;
+    if(datapoint.fatalities && Number.isInteger(parseInt(datapoint.fatalities))){
+      ct += parseInt(datapoint.fatalities);
+    }
+    if(datapoint.injuries && Number.isInteger(parseInt(datapoint.injuries))){
+      ct += parseInt(datapoint.injuries);
+    }
+    return ct;
+  }
+
+  var parseSize = function(size){
+    if(!size || sizes.indexOf(size.toLowerCase()) < 0){
+      return 4;
+    }
+    return sizes.indexOf(size.toLowerCase());
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/globe-slides/dataset.json', true);
+  xhr.onreadystatechange = function(e) {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText);
+        promoted = data;
+        console.log("Got the dataset.")
+        console.log("Length: " + data.length);
+        window.data = data;
+        globe.addData(datafilter(data), {format: 'legend'});
+        globe.createPoints();
+        globe.animate();
+        document.body.style.backgroundImage = 'none'; // remove loading
+      }
+    }
+  };
+  xhr.send(null);
+
+</script>
+
+
+</body>
+
+</html>
