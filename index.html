@@ -58,10 +58,21 @@
     #subtitle{
       font: 11px/11px Georgia;
       position: absolute;
+      top: 75px;
+      width: 320px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 3px;
+      padding: 10px;
+    }
+
+    #tip{
+      font: 11px/11px Georgia;
+      position: absolute;
       top: 30px;
       width: 320px;
       right: 20px;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.2);
       border-radius: 3px;
       padding: 10px;
     }
@@ -69,10 +80,10 @@
     #chart{
       font: 11px/11px Georgia;
       position: absolute;
-      top: 60px;
+      top: 100px;
       width: 320px;
       right: 20px;
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.4);
       border-radius: 3px;
       padding: 10px;
     }
@@ -131,10 +142,17 @@
 <div id="title">
   Landslides! Oh no!
 </div>
-  <div id="subtitle"> <a onclick="resetGlobe();clearTable();">[reset]</a> &nbsp; Double-click somewhere to examine nearby incidents. </div>
+  <div id="subtitle">
+    Recorded landslides in the Americas from 2007 to the present.
+    <hr>
+    Redder bars signify larger landslides.
+    <hr>
+    Bar height signifies aggregate deaths and injuries.
+  </div>
+
+  <div id="tip"> <a onclick="resetGlobe();clearTable();">[show all]</a> &nbsp; Double-click somewhere to examine nearby incidents. <hr>
+  For accurate location selection, allow the globe to stop rotating before clicking. </div>
   <div id="chart"> 
-
-
   </div>
 
 <a id="ce" href="http://www.chromeexperiments.com/globe">
