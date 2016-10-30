@@ -19,7 +19,7 @@
       height: 100%;
     }
 
-    #info {
+    #info{
 
       font-size: 11px;
       position: absolute;
@@ -30,6 +30,8 @@
       padding: 10px;
 
     }
+
+
 
     a {
       color: #aaa;
@@ -53,6 +55,32 @@
       background-color: rgba(0, 0, 0, 0.2);
       font: 20px/20px Georgia;
       padding: 15px;
+    }
+
+    #subtitle{
+      font: 11px/11px Georgia;
+      position: absolute;
+      top: 30px;
+      width: 320px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-radius: 3px;
+      padding: 10px;
+    }
+
+    #chart{
+      font: 11px/11px Georgia;
+      position: absolute;
+      top: 60px;
+      width: 320px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      border-radius: 3px;
+      padding: 10px;
+    }
+
+    #chartrow{
+
     }
 
     .year {
@@ -96,15 +124,16 @@
 <div id="container"></div>
 
 <div id="info">
-  The <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a> is an
-  open platform for visualizing geographic data. <span
-    class="bull">&bull;</span> <a href="https://github.com/dataarts/webgl-globe">Get
-  the code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
+  Visualization created by <a href="https://github.com/addtheletters">Ben Zhang</a>
+  <span class="bull">&bull;</span> 
+  Utilizing <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a><span
+    class="bull">&bull;</span> <a href="https://github.com/dataarts/webgl-globe">Globe Code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
 </div>
 
 <div id="title">
   Landslides! Oh no!
 </div>
+<div id="subtitle"> Double-click somewhere to examine nearby incidents. </div>
 
 <a id="ce" href="http://www.chromeexperiments.com/globe">
   <span>This is a Chrome Experiment</span>
@@ -163,6 +192,91 @@
       return 4;
     }
     return sizes.indexOf(size.toLowerCase());
+  }
+
+  var sqdist = function(latA, lonA, latB, lonB){
+    return (latA - latB) * (latA - latB)  + (lonA - lonB) * (lonA - lonB);
+  }
+
+  var buildTable = function(){
+
+  }
+
+  var examineNearby = function(latitude, longitude, distance){
+    globe.addData([latitude, longitude, 1], {format: 'legend'});
+    if(!data) return;
+    var nearbySlides = [];
+    for(var i = 0; i < data.length; i++){
+      if(sqdist(data[i].latitude, data[i].longitude, latitude, longitude) < (distance * distance)){
+        nearbySlides.push(data[i]);
+      }
+    }
+    console.log(nearbySlides);
+
+
+
+    resetGlobe(nearbySlides);
+  }
+
+  var hoist;
+  function onDoubleClick(event) {
+      event.preventDefault();
+      // var mouse = new THREE.Vector2();
+      // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;   
+      var canvas = globe.renderer.domElement;
+      var vector = new THREE.Vector3( ( (event.clientX) / canvas.width ) * 2 - 1, - ( (event.clientY) / canvas.height) * 2 + 1, 0.5 );
+      console.log(event);
+      //console.log(vector);
+      //vector.unproject( globe.camera );
+      //console.log(vector);
+      //var ray = new THREE.Ray(globe.camera.position, vector.sub(globe.camera.position).normalize());
+      var raycaster = new THREE.Raycaster();
+      //console.log(raycaster);
+      //hoist = raycaster;
+      raycaster.set(globe.camera.position, vector.sub(globe.camera.position).normalize());
+      var intersects = raycaster.intersectObjects(globe.scene.children);
+      console.log(intersects);
+
+      if (intersects.length > 0) {
+          object = intersects[0];
+          r = object.object.geometry.boundingSphere.radius;
+          x = object.point.x;
+          y = object.point.y;
+          z = object.point.z;
+          console.log(r, x, y, z);
+          lat = 90 - (Math.acos(y / r)) * 180 / Math.PI;
+          lon = ((270 + (Math.atan2(x, z)) * 180 / Math.PI) % 360) - 180;
+          //console.log("(lat="+lat+",lon="+lon+")");
+          lat = Math.round(lat * 100000) / 100000;
+          lon = Math.round(lon * 100000) / 100000;
+          //console.log("(lat="+lat+",lon="+lon+")");
+          console.log(lat+","+lon);
+          examineNearby(lat, lon, 10);
+      }
+      else{
+        console.log("No intersection?");
+        resetGlobe();
+      }
+  }
+  globe.renderer.domElement.addEventListener("dblclick", onDoubleClick);
+  
+  var resetGlobe = function(data=promoted){
+    globe.renderer.domElement.addEventListener('dblclick', null, false); //remove listener to render
+    globe.destroy();
+    globe = DAT.Globe(document.getElementById('container'), {
+        colorFn: function(label) {
+          //console.log(label);
+           return new THREE.Color([
+             0xdcf442, 0xffd000, 0xff7700, 0xff0000, 0xc4bca6][label]);
+        }
+    });
+    globe.renderer.domElement.addEventListener("dblclick", onDoubleClick);
+    if(data){
+      globe.addData(datafilter(data), {format: 'legend'});
+      globe.createPoints();
+      globe.animate();
+    }
   }
 
   var xhr = new XMLHttpRequest();

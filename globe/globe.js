@@ -70,6 +70,7 @@ DAT.Globe = function(container, opts) {
 
   var camera, scene, renderer, w, h;
   var mesh, atmosphere, point;
+  var sphere;
 
   var overRenderer;
 
@@ -99,7 +100,8 @@ DAT.Globe = function(container, opts) {
 
     scene = new THREE.Scene();
 
-    var geometry = new THREE.SphereGeometry(200, 40, 30);
+    sphere = new THREE.SphereGeometry(200, 40, 30);
+    var geometry = sphere;
 
     shader = Shaders['earth'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
@@ -366,6 +368,20 @@ DAT.Globe = function(container, opts) {
     renderer.render(scene, camera);
   }
 
+  function destroy(){
+    cancelAnimationFrame(this.id);// Stop the animation
+    animate = x=>null;
+    render = x=>null;
+    renderer.domElement.addEventListener('dblclick', null, false); //remove listener to render
+    renderer = null;
+    scene.remove(this.mesh);
+    scene = null;
+    projector = null;
+    camera = null;
+    controls = null;
+    while (this.modelContainer.lastChild) this.modelContainer.removeChild(this.modelContainer.lastChild);
+  }
+
   init();
   this.animate = animate;
 
@@ -398,10 +414,16 @@ DAT.Globe = function(container, opts) {
     this._time = t;
   });
 
+  this.destroy = destroy;
+
   this.addData = addData;
   this.createPoints = createPoints;
   this.renderer = renderer;
   this.scene = scene;
+  this.camera = camera;
+  this.sphere = sphere;
+  this.mesh = mesh;
+  this.modelContainer = container;
 
   return this;
 
