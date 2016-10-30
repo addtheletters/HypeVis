@@ -1,6 +1,12 @@
 # HypeVis
-Visualizing using Google's WebGL Globe.
+Visualizing using Google's WebGL Globe. [Live!](https://addtheletters.github.io/HypeVis/)
 
-- globe-slides is the main project, using data from NASA's Global Landslides Catalog. 
-- globe-hype is an unfinished app to compare the locations of Twitter users.
+
+## Landslide Impact: Visualizing the effects of recent landslides across the Americas
+This project utilizes data from NASA's [Global Landslides Catalog](https://data.nasa.gov/dataset/Global-Landslide-Catalog-Export/dd9e-wu2v) dataset, which holds information on landslides that have occurred in the Americas since 2007. It displays landslides as points on the WebGL globe. The size of a landslide is indicated using the color of its bar, with more red indicating a larger landslide. Resulting death and injury are aggregated into a 'casualties' value which the height of the bars denotes. Double-clicking on globe will narrow down the data to points near the clicked location; additional metrics about this grouping of data points, if available, will be displayed towards the top right. This visualization reveals the striking dissimilarities that may exist between landslide occurrences of similar magnitude in the northern and southern hemispheres. Besides slight modifications to the globe.js framework, the project is built entirely as a static webpage. The CSS and HTML layout are based on Google's sample, but adjusted to fit the needs of this dataset. All computation is performed by embedded Javascript, which ties into the modifications made to the globe framework. The Three.js backing is leveraged for raycasting to aid with selecting locations on the globe's surface via clicks.
+
+Accompanying the primary project in its repository is an (as of the submission date) unfinished Node.js project which aims to look at worldwide distribution of the usage of particular keywords. This side project was inspired by the social media tie-ins to web-broadcast E-Sports events, in which audience members were asked to vote using hashtagged tweets for teams that they believed would win particular matchups. Very rarely are locations are attached to tweets themselves, hence, the associated user's location was to be plotted as an approximate origin position. Currently implemented functionality includes the tapping into the Twitter APIs to search for and save as JSON data large numbers of tweets containing specified keywords, and to look up the locations of their associated users with Twitter's reverse geocode web hook. Practical application of this is limited by the spottiness and inconsistency of such geographical data, as well as the Twitter API's rate limits; perhaps the latter could be overcome by using a separate location lookup service.
+
+- globe-slides is the main project, using the landslides dataset.
+- globe-hype is an unfinished app meant to pull Tweets and plot them based on the location of their users.
 - globe contains Google's basic population example and the globe.js script; some modifications have been made for the other applications.

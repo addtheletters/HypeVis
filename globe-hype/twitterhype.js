@@ -1,5 +1,4 @@
 // run with nodejs
-// 
 
 var fs          = require('fs');
 var request     = require('request');
@@ -97,12 +96,6 @@ var hype = hype || {};
                     alltweets.push(content["statuses"][k]);
                 }
             }
-            // console.log("min id was " + min_id);
-            // console.log("found " + alltweets.length + " tweets so far.");
-            // console.log("requested " + i + " times.");
-            // console.log("skipped " + skipped + " repeats.");
-            //alltweets = alltweets.concat(content["statuses"])
-            //writeJSONFile(content, "tweets.txt");
             if(content["search_metadata"].count < lib.REQUEST_COUNT){
                 console.log("done.");
                 callback(alltweets);
@@ -122,10 +115,6 @@ var hype = hype || {};
             if(err){
                 console.log("Tag search error: " + err);
             }
-            // for(var i = 0; i < x.length; i++){
-            //     //console.log(x[i].id + ": " + x[i].text);
-            //     continue;
-            // }
             writeJSONFile(x, lib.formDataFilename(team));
             callback(x, team);
             return;
@@ -221,15 +210,3 @@ exports = module.exports = hype;
 
 var testjson = JSON.parse(fs.readFileSync('./data_ANX.json', 'utf8'));
 console.log(hype.lookupLocations(hype.processTweets(testjson, hype.teams[0])));
-
-// function twitterSearch(keyword){
-//     var propertiesObject = { q:"@"+keyword, include_entities:false, };
-//     request({url:TWITTER_URL, qs:propertiesObject}, function(err, response, body) {
-//       if(err) { console.log(err); return; }
-//       console.log("Get response: " + response.statusCode);
-
-//       console.log(body);
-//       writeJSONFile(body, "data.txt");
-//     });
-// }
-

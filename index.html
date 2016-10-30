@@ -135,8 +135,7 @@
 <div id="info">
   Visualization created by <a href="https://github.com/addtheletters">Ben Zhang</a>
   <span class="bull">&bull;</span> 
-  Utilizing <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a><span
-    class="bull">&bull;</span> Google Data Arts Team <span class="bull">&bull;</span> <a href="https://data.nasa.gov/view/angv-aquq">Dataset</a> from NASA 
+  Utilizing <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a> by the Google Data Arts Team <span class="bull">&bull;</span> <a href="https://data.nasa.gov/dataset/Global-Landslide-Catalog-Export/dd9e-wu2v">Dataset</a> from NASA 
 </div>
 
 <div id="title">
@@ -284,22 +283,13 @@
     resetGlobe(nearbySlides);
   }
 
-  var hoist;
   function onDoubleClick(event) {
       event.preventDefault();
-      // var mouse = new THREE.Vector2();
-      // mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-      // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;   
       var canvas = globe.renderer.domElement;
       var vector = new THREE.Vector3( ( (event.clientX) / canvas.width ) * 2 - 1, - ( (event.clientY) / canvas.height) * 2 + 1, 0.5 );
-      //console.log(event);
-      //console.log(vector);
-      //vector.unproject( globe.camera );
-      //console.log(vector);
-      //var ray = new THREE.Ray(globe.camera.position, vector.sub(globe.camera.position).normalize());
+      
       var raycaster = new THREE.Raycaster();
-      //console.log(raycaster);
-      //hoist = raycaster;
+      
       raycaster.set(globe.camera.position, vector.sub(globe.camera.position).normalize());
       var intersects = raycaster.intersectObjects(globe.scene.children);
       //console.log(intersects);
@@ -310,12 +300,8 @@
           x = object.point.x;
           y = object.point.y;
           z = object.point.z;
-          //console.log(r, x, y, z);
           lat = 90 - (Math.acos(y / r)) * 180 / Math.PI;
           lon = ((270 + (Math.atan2(x, z)) * 180 / Math.PI) % 360) - 180;
-          //console.log("(lat="+lat+",lon="+lon+")");
-          lat = Math.round(lat * 100000) / 100000;
-          lon = Math.round(lon * 100000) / 100000;
           console.log("(lat="+lat+",lon="+lon+")");
           //console.log(lat+","+lon);
           examineNearby(lat, lon, selection_radius);
