@@ -127,13 +127,17 @@
   Visualization created by <a href="https://github.com/addtheletters">Ben Zhang</a>
   <span class="bull">&bull;</span> 
   Utilizing <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a><span
-    class="bull">&bull;</span> <a href="https://github.com/dataarts/webgl-globe">Globe Code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
+    class="bull">&bull;</span> Google Data Arts Team <span class="bull">&bull;</span> <a href="https://data.nasa.gov/view/angv-aquq">Dataset</a> from NASA 
 </div>
 
 <div id="title">
   Landslides! Oh no!
 </div>
-<div id="subtitle"> Double-click somewhere to examine nearby incidents. </div>
+  <div id="subtitle"> <a onclick="resetGlobe();clearTable();">[reset]</a> &nbsp; Double-click somewhere to examine nearby incidents. </div>
+  <div id="chart"> 
+
+
+  </div>
 
 <a id="ce" href="http://www.chromeexperiments.com/globe">
   <span>This is a Chrome Experiment</span>
@@ -161,6 +165,7 @@
     var filtered = [];
     for(var i = 0; i < data.length; i++){
       var casualties = countCasualties(data[i]);
+      if(casualties < 0) continue;
       data[i].casualties = casualties;
       if(casualties > max_casualties){
         max_casualties = casualties;
@@ -187,6 +192,14 @@
     return ct;
   }
 
+  var countPopulation = function(datapoint){
+    var ct = 0;
+    if(datapoint.population && Number.isInteger(parseInt(datapoint.population))){
+      ct += parseInt(datapoint.population);
+    }
+    return ct;
+  }
+
   var parseSize = function(size){
     if(!size || sizes.indexOf(size.toLowerCase()) < 0){
       return 4;
@@ -194,27 +207,64 @@
     return sizes.indexOf(size.toLowerCase());
   }
 
+  var unparseSize = function(sizenum){
+    return ["Small", "Medium", "Large", "Very Large", "Unknown"][sizenum];
+  }
+
   var sqdist = function(latA, lonA, latB, lonB){
     return (latA - latB) * (latA - latB)  + (lonA - lonB) * (lonA - lonB);
   }
 
-  var buildTable = function(){
+  var buildRow = function(left, right){
+    return "<tr>" +"<td>"+left+"</td>"+"<td>"+right+"</td>"+"</tr>";
+  }
 
+  var buildTable = function(data, origin){
+    var triggers = {};
+    var popTotal = 0;
+    var casTotal = 0;
+    var sizeTotal = 0;
+    var numSizes = 0;
+
+    for(var i = 0; i < data.length; i++){
+      casTotal += countCasualties(data[i]);
+      popTotal += countPopulation(data[i]);
+      var size = parseSize(data[i].landslide_size);
+      if(size != 4){
+        sizeTotal += size;
+        numSizes ++;
+      }
+    }
+    var table = ( "<table>" +
+      buildRow("Latitude", origin.lat) +
+      buildRow("Longitude", origin.lon) +
+      ( (numSizes > 0) ? (buildRow("Average Landslide Size", unparseSize(Math.round(sizeTotal / numSizes)) ) ) :  "")+
+      buildRow("Nearby Population", popTotal) +
+      buildRow("Recorded Casualties", casTotal) + "</table>" );
+    document.getElementById("chart").innerHTML = table;
+  }
+
+  var clearTable = function(){
+    document.getElementById("chart").innerHTML = "";
   }
 
   var examineNearby = function(latitude, longitude, distance){
     globe.addData([latitude, longitude, 1], {format: 'legend'});
     if(!data) return;
+    var nearest = null;
     var nearbySlides = [];
     for(var i = 0; i < data.length; i++){
-      if(sqdist(data[i].latitude, data[i].longitude, latitude, longitude) < (distance * distance)){
+      var dst = sqdist(data[i].latitude, data[i].longitude, latitude, longitude);
+      if(dst < (distance * distance)){
         nearbySlides.push(data[i]);
       }
+      if(!nearest || dst < nearest.dst){
+        nearest = data[i];
+      }
     }
+    //console.log(nearest.nearest_places);
     console.log(nearbySlides);
-
-
-
+    buildTable(nearbySlides, {lat:latitude, lon:longitude});
     resetGlobe(nearbySlides);
   }
 
