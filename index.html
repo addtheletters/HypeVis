@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>WebGL Globe</title>
+  <title>Landslide Data Globe</title>
   <meta charset="utf-8">
   <style type="text/css">
     html {
@@ -11,7 +11,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: #000000 url(/globe/loading.gif) center center no-repeat;
+      background: #000000 url(globe/loading.gif) center center no-repeat;
       color: #ffffff;
       font-family: sans-serif;
       font-size: 13px;
@@ -30,8 +30,6 @@
       padding: 10px;
 
     }
-
-
 
     a {
       color: #aaa;
@@ -113,7 +111,7 @@
       position: absolute;
       bottom: 15px;
       left: 20px;
-      background: url(/globe/ce.png);
+      background: url(globe/ce.png);
     }
 
 
@@ -330,7 +328,7 @@
   }
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/globe-slides/dataset.json', true);
+  xhr.open('GET', 'globe-slides/dataset.json', true);
   xhr.onreadystatechange = function(e) {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
