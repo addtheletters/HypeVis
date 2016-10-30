@@ -150,7 +150,7 @@
     Bar height signifies aggregate deaths and injuries.
   </div>
 
-  <div id="tip"> <a onclick="resetGlobe();clearTable();">[show all]</a> &nbsp; Double-click somewhere to examine nearby incidents. <hr>
+  <div id="tip"> <a onclick="resetGlobe();clearTable();buildTable(promoted);">[show all]</a> &nbsp; Double-click somewhere to examine nearby incidents. <hr>
   For accurate location selection, allow the globe to stop rotating before clicking. </div>
   <div id="chart"> 
   </div>
@@ -176,6 +176,7 @@
   var promoted = {};
   var sizes = ["small", "medium", "large", "very_large"];
   var max_casualties = 280;
+  var selection_radius = 6;
 
   var datafilter = function(data){
     var filtered = [];
@@ -252,8 +253,7 @@
       }
     }
     var table = ( "<table>" +
-      buildRow("Latitude", origin.lat) +
-      buildRow("Longitude", origin.lon) +
+      ( origin ? (buildRow("Latitude", origin.lat) + buildRow("Longitude", origin.lon)) : "" )+
       ( (numSizes > 0) ? (buildRow("Average Landslide Size", unparseSize(Math.round(sizeTotal / numSizes)) ) ) :  "")+
       buildRow("Nearby Population", popTotal) +
       buildRow("Recorded Casualties", casTotal) + "</table>" );
@@ -292,7 +292,7 @@
       // mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;   
       var canvas = globe.renderer.domElement;
       var vector = new THREE.Vector3( ( (event.clientX) / canvas.width ) * 2 - 1, - ( (event.clientY) / canvas.height) * 2 + 1, 0.5 );
-      console.log(event);
+      //console.log(event);
       //console.log(vector);
       //vector.unproject( globe.camera );
       //console.log(vector);
@@ -302,7 +302,7 @@
       //hoist = raycaster;
       raycaster.set(globe.camera.position, vector.sub(globe.camera.position).normalize());
       var intersects = raycaster.intersectObjects(globe.scene.children);
-      console.log(intersects);
+      //console.log(intersects);
 
       if (intersects.length > 0) {
           object = intersects[0];
@@ -310,15 +310,15 @@
           x = object.point.x;
           y = object.point.y;
           z = object.point.z;
-          console.log(r, x, y, z);
+          //console.log(r, x, y, z);
           lat = 90 - (Math.acos(y / r)) * 180 / Math.PI;
           lon = ((270 + (Math.atan2(x, z)) * 180 / Math.PI) % 360) - 180;
           //console.log("(lat="+lat+",lon="+lon+")");
           lat = Math.round(lat * 100000) / 100000;
           lon = Math.round(lon * 100000) / 100000;
-          //console.log("(lat="+lat+",lon="+lon+")");
-          console.log(lat+","+lon);
-          examineNearby(lat, lon, 10);
+          console.log("(lat="+lat+",lon="+lon+")");
+          //console.log(lat+","+lon);
+          examineNearby(lat, lon, selection_radius);
       }
       else{
         console.log("No intersection?");
@@ -358,6 +358,7 @@
         globe.addData(datafilter(data), {format: 'legend'});
         globe.createPoints();
         globe.animate();
+        buildTable(data);
         document.body.style.backgroundImage = 'none'; // remove loading
       }
     }
