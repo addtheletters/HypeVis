@@ -254,8 +254,8 @@
     var table = ( "<table>" +
       ( origin ? (buildRow("Latitude", origin.lat) + buildRow("Longitude", origin.lon)) : "" )+
       ( (numSizes > 0) ? (buildRow("Average Landslide Size", unparseSize(Math.round(sizeTotal / numSizes)) ) ) :  "")+
-      buildRow("Nearby Population", popTotal) +
-      buildRow("Recorded Casualties", casTotal) + "</table>" );
+      (data.length > 0 ? ( buildRow("Avg. Nearby Population", Math.round(popTotal / data.length)) + buildRow("Recorded Casualties", casTotal) ) : buildRow("No landslide data for this region", "") ) +
+      "</table>" );
     document.getElementById("chart").innerHTML = table;
   }
 
